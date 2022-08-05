@@ -1,0 +1,336 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>List of Users</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+    <h2>List of users</h2>
+    <form name="userForm">
+        <input type="hidden" name="id" value="0" />
+        <div class="mb-3">
+            <label class="form-label" for="name">Name:</label>
+            <input class="form-control" name="name" />
+        </div>
+        <div class="mb-3">
+            <label for="age" class="form-label">Age:</label>
+            <input class="form-control" name="age" />
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email:</label>
+            <input class="form-control" name="email" />
+        </div>
+        <div class="mb-3">
+            <button type="submit" class="btn btn-sm btn-primary">Save</button>
+            <a id="reset" class="btn btn-sm btn-primary">Reset</a>
+        </div>
+    </form>
+    <button name="block"  id="block" ><img src="block.png"   style="height:20px;width:20px;vertical-align: middle">Block</button>
+    <button name="unblock"id="unblock"><img src="unlock.png" style="height:20px;width:20px;vertical-align: middle">Unblock</button>
+    <button name="delete" id="delete"> <img src="delete.png" style="height:20px;width:20px;vertical-align: middle">Delete</button>
+    <table class="table table-condensed table-striped table-bordered">
+        <thead><tr><th><label><input type="checkbox" name="checkid" value="0"><img src="checkall.png" style="height:20px;width:20px;vertical-align: middle"></label></th><th>Id</th><th>Name</th><th>Age</th><th>Email</th><th>Created</th><th>LastLogin</th><th>IsOnline</th><th>IsBlocked</th><th></th></tr></thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <script>
+        var checkedArray = [];
+        var userArray = [];
+        var checkboxes = [];
+        var tokenKey = "accessToken";
+        var token = sessionStorage.getItem(tokenKey);
+        var currentIdkey = "currentId";
+        var currentId = sessionStorage.getItem(currentIdkey);
+   
+        async function getUsers() {
+               const response = await fetch("/api/users", {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                    "Authorization": "Bearer " + token}
+            });
+              if (response.ok === true) {
+                const users = await response.json();
+                const rows = document.querySelector("tbody");
+                userArray.length = 0;
+                checkboxes.length = 0;
+                users.forEach(user => { rows.append(row(user)); userArray.push(user); });
+            }
+            else {
+                alert("Unauthorized or blocked user. Status: " + response.status);
+                window.location.href = ("index.html");
+            }
+        }
+
+        async function getUser(id) {
+            const response = await fetch("/api/users/" + id, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                    "Authorization": "Bearer " + token}
+            });
+            if (response.ok === true) {
+                const user = await response.json();
+                const form = document.forms["userForm"];
+                form.elements["id"].value = user.id;
+                form.elements["name"].value = user.name;
+                form.elements["age"].value = user.age;
+                form.elements["email"].value = user.email;
+            }
+            else {
+                alert("Unauthorized or blocked user. Status: " + response.status);
+                window.location.href = ("index.html");
+            }
+        }
+      
+        async function editUser(userId, userName, userAge, userEmail, blockstate) {
+
+            const response = await fetch("api/users", {
+                method: "PUT",
+                headers: { "Accept": "application/json", "Authorization": "Bearer " + token, "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    id: userId,
+                    name: userName,
+                    age: parseInt(userAge, 10),
+                    email: userEmail,
+                    isBlocked: blockstate
+                })
+            });
+            if (response.ok === true) {
+                var receivedResponse = await response.json();
+                const user = receivedResponse.user;
+                reset();
+                document.querySelector("tr[data-rowid='" + user.id + "']").replaceWith(row(user));
+                if (currentId === user.id) { 
+                    sessionStorage.setItem(tokenKey, receivedResponse.edited_user_tokenkey);
+                }
+            }
+            else {
+                alert("Unauthorized or blocked user. Status: " + response.status);
+                window.location.href = ("index.html");
+            }
+        }
+
+        async function deleteUser(id) {
+            const response = await fetch("/api/users/" + id, {
+                method: "DELETE",
+                headers: { "Accept": "application/json", "Authorization": "Bearer " + token }
+            });
+            if (response.ok === true) {
+                const user = await response.json();
+                document.querySelector("tr[data-rowid='" + user.id + "']").remove();
+            }
+            else {
+                alert("Unauthorized or blocked user. Status: " + response.status);
+                window.location.href = ("index.html");
+            }
+        }
+
+        getUsers();
+
+        async function blockUsers() {
+            let checkedUsers = [];
+            let text = "Do you really wish to block selected users?";
+            if (confirm(text) == false) {
+                checkedArray.length = 0;
+                checkboxes.forEach(p => p.checked = false);
+                checkboxall.checked = false;
+                return;
+            }
+            for (item of checkedArray) {
+                checkedUsers.push(userArray.find(n => n.id === item));
+            }
+            for (chUser of checkedUsers) {
+                chUser.isBlocked = true;
+                await editUser(chUser.id, chUser.name, chUser.age, chUser.email, chUser.isBlocked);
+                if (chUser.id === currentId) {
+                    sessionStorage.removeItem(tokenKey);
+                    token = "";
+                }
+            }
+            checkedArray.length = 0;
+            checkboxes.forEach(p => p.checked = false);
+            checkboxall.checked = false;
+        }
+
+        async function unblockUsers() {
+            let checkedUsers = [];
+            for (item of checkedArray) {
+                checkedUsers.push(userArray.find(n => n.id === item));
+            }
+            for (chUser of checkedUsers) {
+                chUser.isBlocked = false;
+                await editUser(chUser.id, chUser.name, chUser.age, chUser.email, chUser.isBlocked);
+            }
+            checkedArray.length = 0;
+            checkboxes.forEach(p => p.checked = false);
+            checkboxall.checked = false;
+        }
+
+        async function deleteUsers() {
+            let checkedUsers = [];
+            let temp = "";
+            let text = "Do you really wish to delete selected users?";
+            if (confirm(text) == false) {
+                checkedArray.length = 0;
+                checkboxes.forEach(p => p.checked = false);
+                checkboxall.checked = false;
+                return;
+            }
+            for (item of checkedArray) {
+                checkedUsers.push(userArray.find(n => n.id === item));
+            }
+            for (chUser of checkedUsers) {
+                if (chUser.id === currentId) temp = chUser.id;
+                await deleteUser(chUser.id);                  
+            }
+            if (temp === currentId) {
+                sessionStorage.removeItem(tokenKey);
+                token = "";
+            }
+            checkedArray.length = 0;
+            checkboxes.forEach(p => p.checked = false);
+            checkboxall.checked = false;
+        }
+
+        function reset() {
+            const form = document.forms["userForm"];
+            form.reset();
+            form.elements["id"].value = 0;
+        }
+
+        function row(user) {
+
+            const tr = document.createElement("tr"); 
+            tr.setAttribute("data-rowid", user.id);
+
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.id = `${user.id}`;
+            checkbox.name = "checkid";
+            checkbox.value = '0';
+            const eTd = document.createElement("td");
+            eTd.append("");
+            eTd.appendChild(checkbox);
+            tr.append(eTd);
+
+            checkbox.addEventListener("change", e => { checked(checkbox) });
+            checkboxes.push(checkbox);
+
+            const idTd = document.createElement("td");
+            idTd.append(user.id);
+            tr.append(idTd);
+
+            const nameTd = document.createElement("td");
+            nameTd.append(user.name);
+            tr.append(nameTd);
+
+            const ageTd = document.createElement("td");
+            ageTd.append(user.age);
+            tr.append(ageTd);
+
+            const mailTd = document.createElement("td");
+            mailTd.append(user.email);
+            tr.append(mailTd);
+
+            const createdTD = document.createElement("td");
+            createdTD.append(user.created);
+            tr.append(createdTD);
+
+            const lastLoginTD = document.createElement("td");
+            lastLoginTD.append(user.lastLogin);
+            tr.append(lastLoginTD);
+
+            const isOnlineTD = document.createElement("td");
+            isOnlineTD.append(user.isOnline);
+            tr.append(isOnlineTD);
+
+            const isBlockedTd = document.createElement("td");
+            isBlockedTd.append(user.isBlocked);
+            tr.append(isBlockedTd);
+
+            const linksTd = document.createElement("td");
+
+            const editLink = document.createElement("a");
+            editLink.setAttribute("style", "cursor:pointer;padding:15px;");
+            editLink.append("Change");
+            editLink.addEventListener("click", e => {
+
+                e.preventDefault();
+                getUser(user.id);
+            });
+            linksTd.append(editLink);            
+            tr.appendChild(linksTd);
+
+            return tr;
+        }
+
+        document.getElementById("reset").addEventListener("click", e => {
+            e.preventDefault();
+            reset();
+        })
+
+        document.forms["userForm"].addEventListener("submit", e => {
+            e.preventDefault();
+            const form = document.forms["userForm"];
+            const id = form.elements["id"].value;
+            const name = form.elements["name"].value;
+            const age = form.elements["age"].value;
+            const email = form.elements["email"].value;
+            if (id == 0) {
+                alert("Redirecting to Signup page");
+                window.location.href = ("signup.html");
+            }
+            else
+                editUser(id, name, age, email);
+        });
+
+        var buttonblock = document.getElementById("block");
+        buttonblock.addEventListener("click", e => {
+            e.preventDefault();
+            blockUsers();
+        });
+
+        var buttonunblock = document.getElementById("unblock");
+        buttonunblock.addEventListener("click", e => {
+            e.preventDefault();
+            unblockUsers();
+        });
+
+        var buttondelete = document.getElementById("delete");
+        buttondelete.addEventListener("click", e => {
+            e.preventDefault();
+            deleteUsers();
+        });
+        
+        var checkboxall = document.querySelector("input[type=checkbox][name=checkid]");
+        checkboxall.addEventListener("change", 
+        function () {
+            if (this.checked) {
+                checkedArray.length = 0;
+                userArray.forEach(p => (checkedArray.push(p.id)));
+                checkboxes.forEach(p => p.checked = true);
+            }
+            else {
+                checkedArray.length = 0;
+                checkboxes.forEach(p => p.checked = false);
+            }
+        })
+
+        function checked(checkbox) {
+            if (checkbox.checked) {   
+                checkedArray.push(checkbox.id);
+                if (checkedArray.length === userArray.length) checkboxall.checked = true;
+            }
+            else {               
+                let foundIndex = checkedArray.indexOf(checkbox.id);
+                checkedArray.splice(foundIndex, 1);
+                checkboxall.checked = false;
+            }
+        }
+    </script>
+</body>
+</html>
