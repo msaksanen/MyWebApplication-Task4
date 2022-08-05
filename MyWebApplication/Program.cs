@@ -53,25 +53,6 @@ app.UseAuthorization();
 
 app.MapGet("/api/users", [Authorize]  async (ApplicationContext db) => await db.Users.ToListAsync());
 
-//app.MapPost("/login", async (Person loginData, ApplicationContext db) =>
-//{
-//    Person? person = await db.Users.FirstOrDefaultAsync(p => p.Email == loginData.Email && p.Password == loginData.Password);
-//    if (person is null || person.IsBlocked == true) return Results.Unauthorized();
-//    person.IsOnline = true;
-//    person.LastLogin = DateTime.Now.ToString();
-//    await db.SaveChangesAsync();
-//    string encodedJwt = Token.CreateToken(person);
-
-//    var response = new
-//    {
-//        access_token = encodedJwt,
-//        current_Id = person.Id,
-//        username = person.Email
-//    };
-
-//    return Results.Json(response);
-//});
-
 app.MapPost("/login", async (HttpContext context, ApplicationContext db) =>
 {
     var request = context.Request;
@@ -111,15 +92,6 @@ app.MapGet("/api/users/{id}", [Authorize] async (string id, ApplicationContext d
     return Results.Json(user2);
 });
 
-//app.MapDelete("/api/users/{id}", [Authorize] async (string id, ApplicationContext db) =>
-//{
-//    Person? user = await db.Users.FirstOrDefaultAsync(u => u.Id == id);
-//    if (user == null) return Results.NotFound(new { message = "User not found" });
-
-//    db.Users.Remove(user);
-//    await db.SaveChangesAsync();
-//    return Results.Json(user);
-//});
 
 app.MapDelete("/api/users/{id}", [Authorize] async (string id, HttpContext context, ApplicationContext db) =>
 {
