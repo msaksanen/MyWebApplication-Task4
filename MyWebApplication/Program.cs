@@ -3,12 +3,27 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using MyWebApplication;
 using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 
 
 
 var builder = WebApplication.CreateBuilder();
-string connection = "Host=localhost;Port=5432;Database=usersdb;Username=postgres;Password=0456769";
-builder.Services.AddDbContext<ApplicationContext>(options => options.UseNpgsql(connection));
+//string connection = "Host=localhost;Port=5432;Database=usersdb;Username=postgres;Password=0456769";
+//builder.Services.AddDbContext<ApplicationContext>(options => options.UseNpgsql(connection));
+
+builder.Services.AddDbContext<ApplicationContext>(options =>
+{
+    if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Production")
+    {
+        var m = Regex.Match(Environment.GetEnvironmentVariable("DATABASE_URL")!, @"postgres://(.*):(.*)@(.*):(.*)/(.*)");
+        options.UseNpgsql($"Server={m.Groups[3]};Port={m.Groups[4]};User Id={m.Groups[1]};Password={m.Groups[2]};Database={m.Groups[5]};sslmode=Prefer;Trust Server Certificate=true");
+    }
+    else // In Development Environment
+    {
+        // So, use a local Connection
+        options.UseNpgsql(builder.Configuration.GetValue<string>("CONNECTION_STRING"));
+    }
+});
 
 
 //var users = new List<Person>
