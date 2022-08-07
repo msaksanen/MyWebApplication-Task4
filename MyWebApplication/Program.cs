@@ -92,7 +92,6 @@ app.MapGet("/api/users/{id}", [Authorize] async (string id, ApplicationContext d
     return Results.Json(user2);
 });
 
-
 app.MapDelete("/api/users/{id}", [Authorize] async (string id, HttpContext context, ApplicationContext db) =>
 {
     if (await isBlocked(context, db).ConfigureAwait(false)) return Results.Unauthorized();
