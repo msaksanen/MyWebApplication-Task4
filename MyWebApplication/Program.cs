@@ -9,9 +9,8 @@ using System.Text.RegularExpressions;
 
 var builder = WebApplication.CreateBuilder();
 //string connection = "Host=localhost;Port=5432;Database=usersdb;Username=postgres;Password=0456769";
-string connection = "Server=ec2-54-194-211-183.eu-west-1.compute.amazonaws.com;Port=5432;Database=d7n0ghfl7od103;User Id==wvtykgelqyapig;Password=feecf70ad5ad427aa149ae825edba6e717f38364575413388349095ebebd4982;sslmode=Require;TrustServerCertificate=True;";
+string connection = "Server=ec2-54-194-211-183.eu-west-1.compute.amazonaws.com;Port=5432;Database=d7n0ghfl7od103;User Id==wvtykgelqyapig;Password=feecf70ad5ad427aa149ae825edba6e717f38364575413388349095ebebd4982;sslmode=Prefer;TrustServerCertificate=True;";
 builder.Services.AddDbContext<ApplicationContext>(options => options.UseNpgsql(connection));
-// Server={Host};Port=5432;Database={Database};User Id={User};Password={Password};sslmode=Require;TrustServerCertificate=True;"
 
 //builder.Services.AddDbContext<ApplicationContext>(options =>
 //{
