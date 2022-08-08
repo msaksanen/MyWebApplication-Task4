@@ -19,18 +19,18 @@ builder.Services.AddDbContext<ApplicationContext>(options => options.UseNpgsql(c
 //        //options.UseNpgsql($"Server={m.Groups[3]};Port={m.Groups[4]};User Id={m.Groups[1]};Password={m.Groups[2]};Database={m.Groups[5]}");
 //});
 
-//var users = new List<Person>
-// {
-//    new() { Name = "Tom", Age = 35, Email = "tom@gmail.com", Password = "12345" },
-//    new() { Name = "Bob", Age = 41, Email = "bob@gmail.com", Password = "55555" },
-//    new() { Name = "Sam", Age = 24, Email = "sam@gmail.com", Password = "22222" }
-//};
+var users = new List<Person>
+ {
+    new() { Name = "Tom", Age = 35, Email = "tom@gmail.com", Password = "12345" },
+    new() { Name = "Bob", Age = 41, Email = "bob@gmail.com", Password = "55555" },
+    new() { Name = "Sam", Age = 24, Email = "sam@gmail.com", Password = "22222" }
+};
 
-//using (ApplicationContext db = new ApplicationContext())
-//{
-//    db.Users.AddRange(users);
-//    db.SaveChanges();
-//}
+using (ApplicationContext db = new ApplicationContext())
+{
+    db.Users.AddRange(users);
+    db.SaveChanges();
+}
 
 
 builder.Services.AddDistributedMemoryCache();
