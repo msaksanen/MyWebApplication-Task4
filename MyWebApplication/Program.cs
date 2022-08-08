@@ -9,15 +9,16 @@ using System.Text.RegularExpressions;
 
 var builder = WebApplication.CreateBuilder();
 //string connection = "Host=localhost;Port=5432;Database=usersdb;Username=postgres;Password=0456769";
-//string connection = "Host=ec2-54-194-211-183.eu-west-1.compute.amazonaws.com;Port=5432;Database=d7n0ghfl7od103;Username=wvtykgelqyapig;Password=feecf70ad5ad427aa149ae825edba6e717f38364575413388349095ebebd4982";
-//builder.Services.AddDbContext<ApplicationContext>(options => options.UseNpgsql(connection));
+string connection = "Server=ec2-54-194-211-183.eu-west-1.compute.amazonaws.com;Port=5432;Database=d7n0ghfl7od103;User Id==wvtykgelqyapig;Password=feecf70ad5ad427aa149ae825edba6e717f38364575413388349095ebebd4982;sslmode=Require;TrustServerCertificate=True;";
+builder.Services.AddDbContext<ApplicationContext>(options => options.UseNpgsql(connection));
+// Server={Host};Port=5432;Database={Database};User Id={User};Password={Password};sslmode=Require;TrustServerCertificate=True;"
 
-builder.Services.AddDbContext<ApplicationContext>(options =>
-{
-        var m = Regex.Match(Environment.GetEnvironmentVariable("DATABASE_URL")!, @"postgres://(.*):(.*)@(.*):(.*)/(.*)");
-        //options.UseNpgsql($"Server={m.Groups[3]};Port={m.Groups[4]};User Id={m.Groups[1]};Password={m.Groups[2]};Database={m.Groups[5]};sslmode=Prefer;Trust Server Certificate=true");
-        options.UseNpgsql($"Server={m.Groups[3]};Port={m.Groups[4]};User Id={m.Groups[1]};Password={m.Groups[2]};Database={m.Groups[5]}");
-});
+//builder.Services.AddDbContext<ApplicationContext>(options =>
+//{
+//        var m = Regex.Match(Environment.GetEnvironmentVariable("DATABASE_URL")!, @"postgres://(.*):(.*)@(.*):(.*)/(.*)");
+//        options.UseNpgsql($"Server={m.Groups[3]};Port={m.Groups[4]};User Id={m.Groups[1]};Password={m.Groups[2]};Database={m.Groups[5]};sslmode=Prefer;Trust Server Certificate=true");
+//        //options.UseNpgsql($"Server={m.Groups[3]};Port={m.Groups[4]};User Id={m.Groups[1]};Password={m.Groups[2]};Database={m.Groups[5]}");
+//});
 
 //var users = new List<Person>
 // {
