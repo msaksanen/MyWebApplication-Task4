@@ -1,0 +1,78 @@
+﻿-----> Building on the Heroku-20 stack
+-----> Using buildpack: https://github.com/jincod/dotnetcore-buildpack
+-----> Core .NET app detected
+> Installing dotnet
+-----> Export dotnet to Path
+Welcome to .NET 6.0!
+---------------------
+SDK Version: 6.0.400
+----------------
+Installed an ASP.NET Core HTTPS development certificate.
+To trust the certificate run 'dotnet dev-certs https --trust' (Windows and macOS only).
+Learn about HTTPS: https://aka.ms/dotnet-https
+----------------
+Write your first app: https://aka.ms/dotnet-hello-world
+Find out what's new: https://aka.ms/dotnet-whats-new
+Explore documentation: https://aka.ms/dotnet-docs
+Report issues and find source on GitHub: https://github.com/dotnet/core
+Use 'dotnet --help' to see available commands or visit: https://aka.ms/dotnet-cli
+--------------------------------------------------------------------------------------
+Tool 'dotnet-ef' (version '6.0.7') was restored. Available commands: dotnet-ef
+Restore was successful.
+-----> Project File
+> /tmp/build_db6a20c2/MyWebApplication/MyWebApplication.csproj
+-----> Project Name
+> MyWebApplication
+> publish /tmp/build_db6a20c2/MyWebApplication/MyWebApplication.csproj for Release on heroku_output
+MSBuild version 17.3.0+92e077650 for .NET
+  Determining projects to restore...
+  Restored /tmp/build_db6a20c2/MyWebApplication/MyWebApplication.csproj (in 306 ms).
+  MyWebApplication -> /tmp/build_db6a20c2/MyWebApplication/bin/Release/net6.0/linux-x64/MyWebApplication.dll
+  MyWebApplication -> /tmp/build_db6a20c2/heroku_output/
+  Build started...
+  Build succeeded.
+  The Entity Framework tools version '6.0.7' is older than that of the runtime '6.0.8'. Update the tools for the latest features and bug fixes. See https://aka.ms/AAc1fbw for more information.
+  info: Microsoft.EntityFrameworkCore.Infrastructure[10403]
+        Entity Framework Core 6.0.8 initialized 'ApplicationContext' using provider 'Npgsql.EntityFrameworkCore.PostgreSQL:6.0.6+6fa8f3c27a7c241a66e72a6c09e0b252509215d0' with options: None
+  Npgsql.NpgsqlException (0x80004005): Failed to connect to 127.0.0.1:5432
+   ---> System.Net.Sockets.SocketException (111): Connection refused
+     at Npgsql.Internal.NpgsqlConnector.Connect(NpgsqlTimeout timeout)
+     at Npgsql.Internal.NpgsqlConnector.Connect(NpgsqlTimeout timeout)
+     at Npgsql.Internal.NpgsqlConnector.RawOpen(SslMode sslMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken, Boolean isFirstAttempt)
+     at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|191_1(NpgsqlConnector conn, SslMode sslMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken, Boolean isFirstAttempt)
+     at Npgsql.Internal.NpgsqlConnector.Open(NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+     at Npgsql.UnpooledConnectorSource.Get(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+     at Npgsql.NpgsqlConnection.<Open>g__OpenAsync|45_0(Boolean async, CancellationToken cancellationToken)
+     at Npgsql.NpgsqlConnection.Open()
+     at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenDbConnection(Boolean errorsExpected)
+     at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternal(Boolean errorsExpected)
+     at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.Open(Boolean errorsExpected)
+     at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlDatabaseCreator.Exists(Boolean async, CancellationToken cancellationToken)
+     at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlDatabaseCreator.Exists(Boolean async, CancellationToken cancellationToken)
+     at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlDatabaseCreator.Exists()
+     at Microsoft.EntityFrameworkCore.Storage.RelationalDatabaseCreator.EnsureCreated()
+     at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.EnsureCreated()
+     at MyWebApplication.ApplicationContext..ctor(DbContextOptions`1 options) in /tmp/build_db6a20c2/MyWebApplication/ApplicationContext.cs:line 15
+     at System.RuntimeMethodHandle.InvokeMethod(Object target, Span`1& arguments, Signature sig, Boolean constructor, Boolean wrapExceptions)
+     at System.Reflection.RuntimeConstructorInfo.Invoke(BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+     at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)
+     at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+     at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitCache(ServiceCallSite callSite, RuntimeResolverContext context, ServiceProviderEngineScope serviceProviderEngine, RuntimeResolverLock lockType)
+     at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitScopeCache(ServiceCallSite callSite, RuntimeResolverContext context)
+     at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+     at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.Resolve(ServiceCallSite callSite, ServiceProviderEngineScope scope)
+     at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+     at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(Type serviceType, ServiceProviderEngineScope serviceProviderEngineScope)
+     at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngineScope.GetService(Type serviceType)
+     at Microsoft.Extensions.DependencyInjection.ActivatorUtilities.GetServiceOrCreateInstance(IServiceProvider provider, Type type)
+     at Microsoft.EntityFrameworkCore.Design.Internal.DbContextOperations.<>c__DisplayClass21_3.<FindContextTypes>b__11()
+     at Microsoft.EntityFrameworkCore.Design.Internal.DbContextOperations.CreateContext(Func`1 factory)
+     at Microsoft.EntityFrameworkCore.Design.Internal.DbContextOperations.CreateContext(String contextType)
+     at Microsoft.EntityFrameworkCore.Design.Internal.MigrationsOperations.UpdateDatabase(String targetMigration, String connectionString, String contextType)
+     at Microsoft.EntityFrameworkCore.Design.OperationExecutor.UpdateDatabaseImpl(String targetMigration, String connectionString, String contextType)
+     at Microsoft.EntityFrameworkCore.Design.OperationExecutor.UpdateDatabase.<>c__DisplayClass0_0.<.ctor>b__0()
+     at Microsoft.EntityFrameworkCore.Design.OperationExecutor.OperationBase.Execute(Action action)
+  Failed to connect to 127.0.0.1:5432
+/tmp/build_db6a20c2/MyWebApplication/MyWebApplication.csproj(27,5): error MSB3073: The command "dotnet ef database update" exited with code 1.
+ !     Push rejected, failed to compile Core .NET app.
+ !     Push failed
