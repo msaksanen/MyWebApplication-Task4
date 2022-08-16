@@ -4,6 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <EnvironmentName>Production</EnvironmentName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,5 +22,10 @@
     </PackageReference>
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.6" />
   </ItemGroup>
+
+<Target Name="PrePublishTarget" AfterTargets="Publish">
+    <Exec Command="dotnet ef database update" />
+</Target>
+
 
 </Project>
