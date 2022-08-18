@@ -3,27 +3,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using MyWebApplication;
 using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 
 
 
 var builder = WebApplication.CreateBuilder();
-string connection = "Host=localhost;Port=5432;Database=usersdb;Username=postgres;Password=0456769";
-builder.Services.AddDbContext<ApplicationContext>(options => options.UseNpgsql(connection));
-
-
-//var users = new List<Person>
-// {
-//    new() { Name = "Tom", Age = 35, Email = "tom@gmail.com", Password = "12345" },
-//    new() { Name = "Bob", Age = 41, Email = "bob@gmail.com", Password = "55555" },
-//    new() { Name = "Sam", Age = 24, Email = "sam@gmail.com", Password = "22222" }
-//};
-
-//using (ApplicationContext db = new ApplicationContext())
-//{
-//    db.Users.AddRange(users);
-//    db.SaveChanges();
-//}
-
+string connection = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<ApplicationContext>(options => options.UseSqlServer(connection));
 
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession();
@@ -51,26 +37,7 @@ app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapGet("/api/users", [Authorize]  async (ApplicationContext db) => await db.Users.ToListAsync());
-
-//app.MapPost("/login", async (Person loginData, ApplicationContext db) =>
-//{
-//    Person? person = await db.Users.FirstOrDefaultAsync(p => p.Email == loginData.Email && p.Password == loginData.Password);
-//    if (person is null || person.IsBlocked == true) return Results.Unauthorized();
-//    person.IsOnline = true;
-//    person.LastLogin = DateTime.Now.ToString();
-//    await db.SaveChangesAsync();
-//    string encodedJwt = Token.CreateToken(person);
-
-//    var response = new
-//    {
-//        access_token = encodedJwt,
-//        current_Id = person.Id,
-//        username = person.Email
-//    };
-
-//    return Results.Json(response);
-//});
+app.MapGet("/api/users", [Authorize] async (ApplicationContext db) => await db.Users.ToListAsync());
 
 app.MapPost("/login", async (HttpContext context, ApplicationContext db) =>
 {
@@ -104,22 +71,12 @@ app.MapPost("/login", async (HttpContext context, ApplicationContext db) =>
 
 
 app.MapGet("/api/users/{id}", [Authorize] async (string id, ApplicationContext db) =>
-{   
+{
     Person? user = await db.Users.FirstOrDefaultAsync(u => u.Id == id);
     if (user == null) return Results.NotFound(new { message = "User not found" });
     Person user2 = user with { Password = "" };
     return Results.Json(user2);
 });
-
-//app.MapDelete("/api/users/{id}", [Authorize] async (string id, ApplicationContext db) =>
-//{
-//    Person? user = await db.Users.FirstOrDefaultAsync(u => u.Id == id);
-//    if (user == null) return Results.NotFound(new { message = "User not found" });
-
-//    db.Users.Remove(user);
-//    await db.SaveChangesAsync();
-//    return Results.Json(user);
-//});
 
 app.MapDelete("/api/users/{id}", [Authorize] async (string id, HttpContext context, ApplicationContext db) =>
 {
